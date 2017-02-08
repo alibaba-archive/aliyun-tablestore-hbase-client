@@ -20,7 +20,6 @@ public class TablestoreConnection implements Connection {
     private TablestoreClientConf tablestoreConf;
     private volatile boolean closed = false;
     private volatile boolean aborted;
-    private volatile ExecutorService batchPool = null;
 
     public TablestoreConnection(Configuration conf) throws IOException {
         this(conf, false, null, null);
@@ -32,12 +31,11 @@ public class TablestoreConnection implements Connection {
         }
 
         this.hbaseConf = conf;
-        this.batchPool = pool;
         this.closed = false;
         this.tablestoreConf = loadOtsConf(conf);
     }
 
-
+    @Override
     public Configuration getConfiguration() {
         return this.hbaseConf;
     }
@@ -46,43 +44,52 @@ public class TablestoreConnection implements Connection {
         return tablestoreConf;
     }
 
+    @Override
     public Table getTable(TableName tableName) throws IOException {
         Preconditions.checkNotNull(tableName);
         return new TablestoreTable(this, tableName);
     }
 
+    @Override
     public Admin getAdmin() throws IOException {
         return new TablestoreAdmin(this);
     }
 
+    @Override
     public Table getTable(TableName tableName, ExecutorService pool) throws IOException {
         return getTable(tableName);
     }
 
+    @Override
     public BufferedMutator getBufferedMutator(TableName tableName) throws IOException {
         Preconditions.checkNotNull(tableName);
         return new TablestoreBufferedMutator(this, tableName);
     }
 
+    @Override
     public BufferedMutator getBufferedMutator(BufferedMutatorParams params) throws IOException {
         Preconditions.checkNotNull(params);
         TableName tableName = params.getTableName();
         return new TablestoreBufferedMutator(this, tableName);
     }
 
+    @Override
     public RegionLocator getRegionLocator(TableName tableName) throws IOException {
         Preconditions.checkNotNull(tableName);
         return new TablestoreRegionLocator(this, tableName);
     }
 
+    @Override
     public void close() throws IOException {
         this.closed = true;
     }
 
+    @Override
     public boolean isClosed() {
         return this.closed;
     }
 
+    @Override
     public void abort(String why, Throwable e) {
         this.aborted = true;
         try {
@@ -92,6 +99,7 @@ public class TablestoreConnection implements Connection {
         }
     }
 
+    @Override
     public boolean isAborted() {
         return this.aborted;
     }

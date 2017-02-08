@@ -8,10 +8,7 @@ import com.alicloud.tablestore.adaptor.client.OTSAdapter;
 import com.alicloud.tablestore.adaptor.struct.*;
 import com.google.protobuf.*;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HConstants;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.client.coprocessor.Batch;
 import org.apache.hadoop.hbase.filter.CompareFilter;
@@ -61,10 +58,13 @@ public class TablestoreTable implements Table {
         return this.tablestoreAdaptor.getOperationTimeout();
     }
 
+    @Override
     public Result append(Append append) throws IOException {
         throw new UnsupportedOperationException("append");
     }
 
+    @Deprecated
+    @Override
     public Object[] batch(List<? extends Row> actions) throws IOException,
             InterruptedException {
         Object[] results = new Object[actions.size()];
@@ -72,14 +72,18 @@ public class TablestoreTable implements Table {
         return results;
     }
 
+    @Override
     public <R> void batchCallback(List<? extends Row> actions, Object[] results, Batch.Callback<R> callback) throws IOException, InterruptedException {
         throw new UnsupportedOperationException("batchCallback");
     }
 
+    @Deprecated
+    @Override
     public <R> Object[] batchCallback(List<? extends Row> actions, Batch.Callback<R> callback) throws IOException, InterruptedException {
         throw new UnsupportedOperationException("batchCallback");
     }
 
+    @Override
     public void batch(List<? extends Row> actions, Object[] results)
             throws IOException, InterruptedException {
         List<ORow> tactions = new ArrayList<ORow>(actions.size());
@@ -114,11 +118,13 @@ public class TablestoreTable implements Table {
         }
     }
 
+    @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier,
                                   byte[] value, Delete delete) throws IOException {
         return checkAndDelete(row, family, qualifier, CompareFilter.CompareOp.EQUAL, value, delete);
     }
 
+    @Override
     public boolean checkAndDelete(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value, Delete delete) throws IOException {
         if (!Arrays.equals(delete.getRow(), row)) {
             throw new UnsupportedOperationException("CheckAndDelete does not support check one row but delete other row");
@@ -143,11 +149,13 @@ public class TablestoreTable implements Table {
         return true;
     }
 
+    @Override
     public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier,
                                byte[] value, Put put) throws IOException {
         return checkAndPut(row, family, qualifier, CompareFilter.CompareOp.EQUAL, value, put);
     }
 
+    @Override
     public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value, Put put) throws IOException {
         if (!Arrays.equals(put.getRow(), row)) {
             throw new UnsupportedOperationException("CheckAndPut does not support check one row but put other row");
@@ -171,6 +179,7 @@ public class TablestoreTable implements Table {
         return true;
     }
 
+    @Override
     public void close() throws IOException {
         if (this.tablestoreAdaptor != null) {
             this.tablestoreAdaptor.close();
@@ -178,33 +187,40 @@ public class TablestoreTable implements Table {
         }
     }
 
+    @Override
     public CoprocessorRpcChannel coprocessorService(byte[] row) {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public <T extends Service, R> Map<byte[], R> coprocessorService(Class<T> service, byte[] startKey, byte[] endKey, Batch.Call<T, R> callable) throws ServiceException, Throwable {
         throw new UnsupportedOperationException("coprocessorService");
     }
 
+    @Override
     public <T extends Service, R> void coprocessorService(Class<T> service, byte[] startKey, byte[] endKey, Batch.Call<T, R> callable, Batch.Callback<R> callback) throws ServiceException, Throwable {
         throw new UnsupportedOperationException("coprocessorService");
     }
 
+    @Override
     public void delete(Delete delete) throws IOException {
         this.tablestoreAdaptor.delete(tableNameStr,
                 ElementConvertor.toOtsDelete(delete,this.tablestoreColumnMapping));
     }
 
+    @Override
     public void delete(List<Delete> deletes) throws IOException {
         this.tablestoreAdaptor.deleteMultiple(tableNameStr,
                 ElementConvertor.toOtsDeleteList(deletes,this.tablestoreColumnMapping));
     }
 
+    @Override
     public boolean exists(Get get) throws IOException {
         Result result = get(get);
         return result.getRow() != null;
     }
 
+    @Override
     public boolean[] existsAll(List<Get> gets) throws IOException {
         Result[] results = get(gets);
         boolean[] existResult = new boolean[results.length];
@@ -214,22 +230,26 @@ public class TablestoreTable implements Table {
         return existResult;
     }
 
+    @Override
     public Result get(Get get) throws IOException {
         OResult result = this.tablestoreAdaptor.get(tableNameStr,
                 ElementConvertor.toOtsGet(get, this.tablestoreColumnMapping));
         return ElementConvertor.toHBaseResult(result, this.tablestoreColumnMapping);
     }
 
+    @Override
     public Result[] get(List<Get> gets) throws IOException {
         List<OResult> results = this.tablestoreAdaptor.getMultiple(tableNameStr,
                 ElementConvertor.toOtsGets(gets, this.tablestoreColumnMapping));
         return ElementConvertor.toHBaseResults(results, this.tablestoreColumnMapping);
     }
 
+    @Override
     public Configuration getConfiguration() {
         return this.connection.getConfiguration();
     }
 
+    @Override
     public ResultScanner getScanner(Scan scan) throws IOException {
         Preconditions.checkNotNull(scan);
 
@@ -242,12 +262,14 @@ public class TablestoreTable implements Table {
         return new Scanner(oscanner, this.tablestoreColumnMapping);
     }
 
+    @Override
     public ResultScanner getScanner(byte[] family) throws IOException {
         Scan scan = new Scan();
         scan.addFamily(family);
         return getScanner(scan);
     }
 
+    @Override
     public ResultScanner getScanner(byte[] family, byte[] qualifier)
             throws IOException {
         Scan scan = new Scan();
@@ -255,37 +277,46 @@ public class TablestoreTable implements Table {
         return getScanner(scan);
     }
 
+    @Override
     public HTableDescriptor getTableDescriptor() throws IOException {
         OTableDescriptor oTableDescriptor = this.tablestoreAdaptor.describeTable(this.tableName.getNameAsString());
         return ElementConvertor.toHbaseTableDescriptor(oTableDescriptor, this.tablestoreColumnMapping);
     }
 
+    @Override
     public TableName getName() {
         return tableName;
     }
 
+    @Deprecated
+    @Override
     public long getWriteBufferSize() {
         return writeBufferSize;
     }
 
+    @Override
     public Result increment(Increment increment) throws IOException {
         throw new UnsupportedOperationException("increment");
     }
 
+    @Override
     public long incrementColumnValue(byte[] row, byte[] family, byte[] qualifier,
                                      long amount) throws IOException {
         throw new UnsupportedOperationException("incrementColumnValue");
     }
 
+    @Override
     public long incrementColumnValue(byte[] row, byte[] family, byte[] qualifier, long amount, Durability durability) throws IOException {
         throw new UnsupportedOperationException("incrementColumnValue");
     }
 
+    @Override
     public void mutateRow(RowMutations rm) throws IOException {
         OUpdate oupdate = ElementConvertor.toOtsUpdate(rm, this.tablestoreColumnMapping);
         this.tablestoreAdaptor.update(tableNameStr, oupdate);
     }
 
+    @Override
     public void put(Put put) throws IOException {
         if (this.autoFlush) {
             OPut oput = ElementConvertor.toOtsPut(put, this.tablestoreColumnMapping);
@@ -295,6 +326,7 @@ public class TablestoreTable implements Table {
         }
     }
 
+    @Override
     public void put(List<Put> puts) throws IOException {
         if (this.autoFlush) {
             this.tablestoreAdaptor.putMultiple(tableNameStr,
@@ -347,9 +379,9 @@ public class TablestoreTable implements Table {
             throw new IllegalArgumentException("No columns to insert");
         }
         if (maxKeyValueSize > 0) {
-            for (List<KeyValue> list : put.getFamilyMap().values()) {
-                for (KeyValue kv : list) {
-                    if (kv.getLength() > maxKeyValueSize) {
+            for (List<Cell> cells: put.getFamilyCellMap().values()) {
+                for (Cell cell : cells) {
+                    if (cell.getValueLength() > maxKeyValueSize) {
                         throw new IllegalArgumentException("KeyValue size too large");
                     }
                 }
@@ -357,18 +389,23 @@ public class TablestoreTable implements Table {
         }
     }
 
+    @Deprecated
+    @Override
     public void setWriteBufferSize(long writeBufferSize) throws IOException {
         this.writeBufferSize = writeBufferSize;
     }
 
+    @Override
     public <R extends Message> Map<byte[], R> batchCoprocessorService(Descriptors.MethodDescriptor methodDescriptor, Message request, byte[] startKey, byte[] endKey, R responsePrototype) throws ServiceException, Throwable {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public <R extends Message> void batchCoprocessorService(Descriptors.MethodDescriptor methodDescriptor, Message request, byte[] startKey, byte[] endKey, R responsePrototype, Batch.Callback<R> callback) throws ServiceException, Throwable {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public boolean checkAndMutate(byte[] row, byte[] family, byte[] qualifier, CompareFilter.CompareOp compareOp, byte[] value, RowMutations mutation) throws IOException {
         if (!Arrays.equals(mutation.getRow(), row)) {
             throw new UnsupportedOperationException("CheckAndMutation does not support check one row but Mutate other row");
@@ -404,6 +441,7 @@ public class TablestoreTable implements Table {
             this.tablestoreColumnMapping = otsColumnMappingStrategy;
         }
 
+        @Override
         public void close() {
             this.tscanner.close();
         }
@@ -436,38 +474,5 @@ public class TablestoreTable implements Table {
         public boolean renewLease() {
             throw new UnsupportedOperationException();
         }
-    }
-
-    public HConnection getConnection() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Gets the number of rows that a scanner will fetch at once.
-     * <p>
-     * The default value comes from {@code hbase.client.scanner.caching}.
-     *
-     * @deprecated Use {@link Scan#setCaching(int)} and {@link Scan#getCaching()}
-     */
-    public int getScannerCaching() {
-        return this.scannerCaching;
-    }
-
-    /**
-     * do nothing, this method is used by code{AdvancedHTableFactory}
-     *
-     * @param scannerCaching the number of rows a scanner will fetch at once.
-     * @deprecated Use {@link Scan#setCaching(int)}
-     */
-    public void setScannerCaching(int scannerCaching) {
-        this.scannerCaching = scannerCaching;
-    }
-
-    /**
-     * do nothing, this method is used by code{AdvancedHTableFactory}
-     * @param operationTimeout
-     */
-    public void setOperationTimeout(int operationTimeout) {
-        this.tablestoreAdaptor.setOperationTimeout(operationTimeout);
     }
 }
