@@ -1,4 +1,8 @@
 # Aliyun Tablestore HBase client for Java
+
+[![Software License](https://img.shields.io/badge/license-apache2-brightgreen.svg)](LICENSE)
+[![GitHub version](https://badge.fury.io/gh/aliyun%2Faliyun-tablestore-hbase-client.svg)](https://badge.fury.io/gh/aliyun%2Faliyun-tablestore-hbase-client)
+
 [表格存储](https://www.aliyun.com/product/ots/)是阿里云主打的NoSQL大数据分布式数据库，目前已经大规模服务于众多阿里巴巴集团内部和外部应用，包括邮箱，钉钉，菜鸟，搜索，交易，推荐等。
 
 表格存储的设计目标就是处理海量数据，持续大并发和低延迟，特别适用于金融，用户分析和物联网。
