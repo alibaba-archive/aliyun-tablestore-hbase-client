@@ -20,13 +20,6 @@
         </plugins>
     </build>
 
-    <properties>
-        <!-- For flaky tests exclusion -->
-        <test.exclude />
-        <test.exclude.pattern>**/${test.exclude}.java</test.exclude.pattern>
-        <compileSource>1.6</compileSource>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.aliyun.openservices</groupId>
