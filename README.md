@@ -16,7 +16,6 @@
 
 如果要使用Tablestore HBase client，可参考下列文档
 
-- [TableStore与HBase和对比](https://help.aliyun.com/document_detail/50125.html)
 - [表格存储和HBase API的区别](https://help.aliyun.com/document_detail/501220.html)
 - [如何使用Tablestore HBase client](https://help.aliyun.com/document_detail/50127.html)
 - [迁移较早版本的HBase](https://help.aliyun.com/document_detail/50166.html)
