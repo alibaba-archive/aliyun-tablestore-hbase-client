@@ -25,7 +25,7 @@
             <groupId>com.aliyun.openservices</groupId>
             <artifactId>tablestore</artifactId>
             <classifier>jar-with-dependencies</classifier>
-            <version>4.2.1</version>
+            <version>4.10.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.protobuf</groupId>
